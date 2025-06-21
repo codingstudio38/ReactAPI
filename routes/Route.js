@@ -6,7 +6,7 @@ const routeapp = new express.Router();
 const UsersController = require("./../Controllers/UsersController");
 const UsersPostController = require("./../Controllers/UsersPostController");
 const UsersChatController = require("./../Controllers/UsersChatController");
-const OpenAIController = require("./../Controllers/OpenAIController");
+// const OpenAIController = require("./../Controllers/OpenAIController");
 const Randd = require("./../Controllers/Randd");
 const Auth = require("./../middleware/Auth");
 const GeneralAuth = require("./../middleware/GeneralAuth");
@@ -118,7 +118,7 @@ routeapp.get("/pdf-export-test", Randd.ExportPDF);
 routeapp.get("/IframeTest", Randd.IframeTest);
 
 routeapp.get("/IframeTest", Randd.IframeTest);
-routeapp.post("/call-ai-api", OpenAIController.CallAI);
+// routeapp.post("/call-ai-api", OpenAIController.CallAI);
 
 routeapp.get("*", (req, res) => {
     res.status(404).json({ status: 404, message: "route not found..!!" });
