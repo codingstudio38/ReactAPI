@@ -61,8 +61,49 @@ async function FileRD(req, resp) {
     }
 }
 
-
 async function NodeJSStreams(req, resp) {
+    try {
+        let { watch } = req.query;
+        let total = 0, data = {};
+        if (!watch) return resp.status(200).json({ "status": 200, "message": "video id required!", "data": false });
+
+        watch = await Healper.data_decrypt(decodeURIComponent(watch)); //Healper.data_encrypt()
+        total = await UsersPostModel.find({ '_id': new mongodb.ObjectId(watch) }).countDocuments();
+        if (total <= 0) return resp.status(200).json({ "status": 200, "message": "file not exists!!", "data": false });
+        data = await UsersPostModel.find({ '_id': new mongodb.ObjectId(watch) });
+        let filepath = '', filedata = '', FileSize = 0, FileExists = false, FileType = '';
+        filepath = path.join(__dirname, `./../public/video_file/${data[0].video_file}`);
+        FileExists = await Healper.FileExists(filepath);
+        if (!FileExists) return resp.status(200).json({ "status": 200, "message": "file not exists!!", "data": false });
+        const getFileInfo = await Healper.FileInfo(filepath);
+        FileSize = getFileInfo.filesize;
+        FileType = getFileInfo.filetype;
+        let range = req.headers.range;
+        if (!range) return resp.status(416).json({ "status": 416, "message": 'headers range required!', "data": false });
+
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : FileSize - 1;
+
+        const chunkSize = end - start + 1;
+        const file = fs.createReadStream(filepath, { start, end });
+
+        const head = {
+            "Content-Range": `bytes ${start}-${end}/${FileSize}`,
+            "Accept-Ranges": "bytes",
+            "Content-Length": chunkSize,
+            "Content-Type": "video/mp4"
+        };
+
+        resp.writeHead(206, head);
+        file.pipe(resp);
+
+    } catch (error) {
+        return resp.status(500).json({ "status": 500, "message": error.message, "data": false });
+    }
+}
+
+async function NodeJSStreams_OLD(req, resp) {
     try {
         let { watch } = req.query;
         let total = 0, data = {};
@@ -384,4 +425,4 @@ async function IframeTest(req, resp) {
 
 
 
-module.exports = { FileRD, NodeJSStreams, NodeJScluster, NodeJSAsynchronousFunctioan, CallModelMethod, NodeJSPlayVideo, nodejSPHPpagination, ExportPDF, IframeTest };
+module.exports = { FileRD, NodeJSStreams, NodeJSStreams_OLD, NodeJScluster, NodeJSAsynchronousFunctioan, CallModelMethod, NodeJSPlayVideo, nodejSPHPpagination, ExportPDF, IframeTest };

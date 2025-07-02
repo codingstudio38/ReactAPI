@@ -84,7 +84,8 @@ routeapp.get("/test-worker-threads", UsersChatController.testwithworkerthreads);
 
 routeapp.post("/FileRD", Randd.FileRD);
 
-routeapp.get("/video-player", Randd.NodeJSStreams);
+routeapp.get("/video-player", Auth, Randd.NodeJSStreams);//video blob url
+routeapp.get("/video", Randd.NodeJSStreams_OLD);
 
 routeapp.get("/nodejS-video", Randd.NodeJSPlayVideo);
 
